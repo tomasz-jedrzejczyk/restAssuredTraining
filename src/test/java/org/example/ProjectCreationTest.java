@@ -1,6 +1,7 @@
 package org.example;
 
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -13,11 +14,13 @@ public class ProjectCreationTest {
         RestAssured
                 .given()
                     .baseUri("https://api.todoist.com")
+                    .basePath("/rest/v1/")
                     .header("Authorization", "Bearer 6e0af658835382fa334b51863752c64b07dcc204")
-                    .header("Content-Type", "application/json")
+                    .contentType(ContentType.JSON)
+                    //.header("Content-Type", "application/json")
                     .body("{\"name\":\"Moj nowy projekt\"}")
                 .when()
-                    .post("/rest/v1/projects")
+                    .post("/projects")
                 .then()
                     .log().all()
                     .assertThat()
