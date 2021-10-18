@@ -52,8 +52,10 @@ public class ProjectCreationTest {
                 .when()
                     .get("/projects")
                 .then()
-                    .log().all();
-        
+                    .log().all()
+                .assertThat()
+                .body(String.format("find{ it.id == %d}.name", projectId), Matchers.equalTo("Moj nowy projekt"));
+
     }
 }
 
