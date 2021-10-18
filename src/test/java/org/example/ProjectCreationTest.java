@@ -3,19 +3,25 @@ package org.example;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ProjectCreationTest {
 
+    @Before
+    public void setup(){
+        RestAssured.baseURI = "https://api.todoist.com";
+        RestAssured.basePath = "/rest/v1/";
+
+        RestAssured.requestSpecification =
+                RestAssured.given().header("Authorization", "Bearer 6e0af658835382fa334b51863752c64b07dcc204")
+                        .contentType(ContentType.JSON);
+    }
     @Test
     public void userCanCreateAProject(){
 
         long projectId = RestAssured
                 .given()
-                    .baseUri("https://api.todoist.com")
-                    .basePath("/rest/v1/")
-                    .header("Authorization", "Bearer 6e0af658835382fa334b51863752c64b07dcc204")
-                    .contentType(ContentType.JSON)
                     .body("{\"name\": \"Moj nowy projekt\"}")
                 .when()
                     .post("/projects")
@@ -30,10 +36,6 @@ public class ProjectCreationTest {
 
         RestAssured
                 .given()
-                    .baseUri("https://api.todoist.com")
-                    .basePath("/rest/v1/")
-                    .header("Authorization", "Bearer 6e0af658835382fa334b51863752c64b07dcc204")
-                    .contentType(ContentType.JSON)
                     .pathParam("id", projectId)
                 .when()
                     .get("/projects/{id}")
@@ -44,17 +46,12 @@ public class ProjectCreationTest {
                         .body("name", Matchers.equalTo("Moj nowy projekt"));
 
         RestAssured
-                .given()
-                    .baseUri("https://api.todoist.com")
-                    .basePath("/rest/v1/")
-                    .header("Authorization", "Bearer 6e0af658835382fa334b51863752c64b07dcc204")
-                    .contentType(ContentType.JSON)
                 .when()
                     .get("/projects")
                 .then()
                     .log().all()
                 .assertThat()
-                .body(String.format("find{ it.id == %d}.name", projectId), Matchers.equalTo("Moj nowy projekt"));
+                .body(String.format("find{ it.id == %d }.name", projectId), Matchers.equalTo("Moj nowy projekt"));
 
     }
 }
