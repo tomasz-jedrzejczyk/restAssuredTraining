@@ -19,10 +19,11 @@ public class ProjectCreationTest {
                 .when()
                     .post("/rest/v1/projects")
                 .then()
+                    .log().all()
                     .assertThat()
-                .statusCode(200)
-                .body("name", Matchers.equalTo("Moj nowy projekt"))
-                .header("Content-Type", Matchers.equalTo("application/json"))
-                    .log().all();
+                        .statusCode(200)
+                        .body("name", Matchers.equalTo("Moj nowy projekt"))
+                        .header("Content-Type", Matchers.equalTo("application/json"));
+
     }
 }
