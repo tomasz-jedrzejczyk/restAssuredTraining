@@ -43,6 +43,17 @@ public class ProjectCreationTest {
                         .statusCode(200)
                         .body("name", Matchers.equalTo("Moj nowy projekt"));
 
+        RestAssured
+                .given()
+                    .baseUri("https://api.todoist.com")
+                    .basePath("/rest/v1/")
+                    .header("Authorization", "Bearer 6e0af658835382fa334b51863752c64b07dcc204")
+                    .contentType(ContentType.JSON)
+                .when()
+                    .get("/projects")
+                .then()
+                    .log().all();
+        
     }
 }
 
