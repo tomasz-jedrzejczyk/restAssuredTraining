@@ -14,11 +14,15 @@ public class ProjectCreationTest {
         RestAssured.basePath = "/rest/v1/";
 
         RestAssured.requestSpecification =
-                RestAssured.given().header("Authorization", "Bearer 6e0af658835382fa334b51863752c64b07dcc204")
-                        .contentType(ContentType.JSON);
+                RestAssured
+                        .given()
+                            .header("Authorization", "Bearer 6e0af658835382fa334b51863752c64b07dcc204")
+                            .contentType(ContentType.JSON);
+
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
     }
     @Test
-    public void userCanCreateAProject(){
+    public void userCanCreateProject(){
 
         long projectId = RestAssured
                 .given()
@@ -26,7 +30,6 @@ public class ProjectCreationTest {
                 .when()
                     .post("/projects")
                 .then()
-                    .log().all()
                     .assertThat()
                         .statusCode(200)
                         .body("name", Matchers.equalTo("Moj nowy projekt"))
@@ -40,7 +43,6 @@ public class ProjectCreationTest {
                 .when()
                     .get("/projects/{id}")
                 .then()
-                    .log().all()
                     .assertThat()
                         .statusCode(200)
                         .body("name", Matchers.equalTo("Moj nowy projekt"));
@@ -49,9 +51,8 @@ public class ProjectCreationTest {
                 .when()
                     .get("/projects")
                 .then()
-                    .log().all()
-                .assertThat()
-                .body(String.format("find{ it.id == %d }.name", projectId), Matchers.equalTo("Moj nowy projekt"));
+                    .assertThat()
+                        .body(String.format("find{ it.id == %d }.name", projectId), Matchers.equalTo("Moj nowy projekt"));
 
     }
 }
