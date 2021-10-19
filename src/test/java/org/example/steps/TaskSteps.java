@@ -23,21 +23,21 @@ public class TaskSteps {
         taskName = "New task";
 
         taskId = SerenityRest
-                .given()
-                .body(format("{\"content\": \"%s\", \"project_id\": %d}", taskName, projectId))
-                .when()
-                .post("/tasks")
+                    .given()
+                        .body(format("{\"content\": \"%s\", \"project_id\": %d}", taskName, projectId))
+                    .when()
+                        .post("/tasks")
                 .then()
-                .assertThat()
-                .statusCode(200)
-                .body(
+                    .assertThat()
+                        .statusCode(200)
+                        .body(
                         "content", equalTo(taskName)
-                )
-                .body(
+                        )
+                        .body(
                         "project_id", equalTo(projectId)
-                )
-                .and()
-                .extract().path("id");
+                        )
+                        .and()
+                        .extract().path("id");
     }
 
     @Step
@@ -45,18 +45,18 @@ public class TaskSteps {
 
         SerenityRest
                 .given()
-                .pathParam("id", taskId)
+                    .pathParam("id", taskId)
                 .when()
-                .get("/tasks/{id}")
+                    .get("/tasks/{id}")
                 .then()
-                .assertThat()
-                .statusCode(200)
-                .body(
+                    .assertThat()
+                    .statusCode(200)
+                         .body(
                         "content", equalTo(taskName)
-                )
-                .body(
+                         )
+                         .body(
                         "project_id", equalTo(projectId)
-                );
+                         );
     }
 
     @Step
@@ -64,13 +64,12 @@ public class TaskSteps {
 
         SerenityRest
                 .when()
-                .get("/tasks")
+                    .get("/tasks")
                 .then()
-                .assertThat()
-
-                .body(format("find{ it.id == %d }.content", taskId),
+                    .assertThat()
+                        .body(format("find{ it.id == %d }.content", taskId),
                         equalTo(taskName))
-                .body(format("find{ it.id == %d }.project_id", taskId),
+                        .body(format("find{ it.id == %d }.project_id", taskId),
                         equalTo(projectId));
     }
 }
