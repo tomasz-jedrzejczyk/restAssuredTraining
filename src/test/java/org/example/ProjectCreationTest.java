@@ -32,9 +32,15 @@ public class ProjectCreationTest {
     public void userCanCreateProject() {
 
         String projectName = "Totalnie nowy projekt";
+        String taskName = "Nowe zadanie";
+
         long projectId = userCreateNewProject(projectName);
         userChecksProjectDetails(projectName, projectId);
         userChecksIfProjectIsListedWithAllProjects(projectName, projectId);
+
+        long taskId = userCanAddNewTaskToProject(taskName,projectId);
+        userCheckTaskDetails(taskName,taskId);
+        userCheckIfProcjetHaveCorrectTask(taskId, taskName);
 
     }
 
@@ -83,5 +89,49 @@ public class ProjectCreationTest {
                                 equalTo(projectName)
                         );
     }
+
+    public long userCanAddNewTaskToProject(String taskName, long projectId) {
+
+        return RestAssured
+                .given()
+                    .body(format("{\"content\": \"%s\", \"project_id\": %d}", taskName, projectId))
+                .when()
+                    .post("/tasks")
+                .then()
+                    .assertThat()
+                        .statusCode(200)
+                        .and()
+                        .extract().path("id");
+
+    }
+
+    public void userCheckTaskDetails(String taskName, long taskId){
+        RestAssured
+                .given()
+                    .pathParam("id", taskId)
+                .when()
+                    .get("/tasks/{id}")
+                .then()
+                    .assertThat()
+                        .statusCode(200)
+                        .body(
+                        "content", equalTo(taskName)
+                        );
+    }
+
+    public void userCheckIfProcjetHaveCorrectTask(long taskId, String taskName){
+
+        RestAssured
+                .when()
+                    .get("/tasks")
+                .then()
+                    .assertThat()
+                        .body(
+                            format("find{ it.id == %d }.content", taskId),
+                            equalTo(taskName)
+                    );
+    }
+
 }
+
 
