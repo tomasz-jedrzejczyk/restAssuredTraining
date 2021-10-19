@@ -29,19 +29,25 @@ public class ProjectCreationTest {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
     }
     @Test
-    public void userCanCreateProject() {
+    public void user_can_create_project() {
 
-        String projectName = "Totalnie nowy projekt";
-        String taskName = "Nowe zadanie";
+        String projectName = "New project for first test";
 
         long projectId = userCreateNewProject(projectName);
         userChecksProjectDetails(projectName, projectId);
         userChecksIfProjectIsListedWithAllProjects(projectName, projectId);
+    }
 
-        long taskId = userCanAddNewTaskToProject(taskName,projectId);
-        userCheckTaskDetails(taskName,taskId);
-        userCheckIfProcjetHaveCorrectTask(taskId, taskName);
+    @Test
+    public void user_can_create_task_to_a_project(){
 
+        String projectName = "New project for second test";
+        String taskName = "New task";
+
+        long projectId = userCreateNewProject(projectName);
+        long taskId = userCanAddNewTaskToProject(taskName, projectId);
+        userCheckTaskDetails(taskName, projectId, taskId);
+        userCheckIfProcjetHaveCorrectTask(taskId, taskName, projectId);
     }
 
     public long userCreateNewProject(String projectName){
@@ -100,12 +106,18 @@ public class ProjectCreationTest {
                 .then()
                     .assertThat()
                         .statusCode(200)
+                        .body(
+                        "content", equalTo(taskName)
+                        )
+                        .body(
+                        "project_id", equalTo(projectId)
+                        )
                         .and()
                         .extract().path("id");
 
     }
 
-    public void userCheckTaskDetails(String taskName, long taskId){
+    public void userCheckTaskDetails(String taskName, long projectId, long taskId){
         RestAssured
                 .given()
                     .pathParam("id", taskId)
@@ -116,20 +128,25 @@ public class ProjectCreationTest {
                         .statusCode(200)
                         .body(
                         "content", equalTo(taskName)
+                        )
+                        .body(
+                        "project_id", equalTo(projectId)
                         );
     }
 
-    public void userCheckIfProcjetHaveCorrectTask(long taskId, String taskName){
+    public void userCheckIfProcjetHaveCorrectTask(long taskId, String taskName, long projectId){
 
         RestAssured
                 .when()
                     .get("/tasks")
                 .then()
                     .assertThat()
-                        .body(
-                            format("find{ it.id == %d }.content", taskId),
-                            equalTo(taskName)
-                    );
+
+                .body(format("find{ it.id == %d }.content", taskId),
+                        equalTo(taskName))
+                .body(format("find{ it.id == %d }.project_id", taskId),
+                        equalTo(projectId));
+
     }
 
 }
