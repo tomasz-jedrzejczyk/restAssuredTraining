@@ -1,17 +1,28 @@
 package org.example.steps;
 
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import org.junit.Before;
+import net.serenitybdd.rest.SerenityRest;
+import net.thucydides.core.annotations.Step;
+import net.thucydides.core.annotations.Steps;
 
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.equalTo;
 
 public class TaskSteps {
 
-    public long userCanAddNewTaskToProject(String taskName, long projectId) {
+    private String taskName;
+    private long taskId;
+    private long projectId;
 
-        return RestAssured
+    @Steps
+    ProjectSteps preconditions;
+
+    @Step
+    public void userCanAddNewTaskToProject() {
+
+        projectId = preconditions.userCreateNewProject();
+        taskName = "New task";
+
+        taskId = SerenityRest
                 .given()
                 .body(format("{\"content\": \"%s\", \"project_id\": %d}", taskName, projectId))
                 .when()
@@ -29,8 +40,10 @@ public class TaskSteps {
                 .extract().path("id");
     }
 
-    public void userCheckTaskDetails(String taskName, long projectId, long taskId){
-        RestAssured
+    @Step
+    public void userCheckTaskDetails(){
+
+        SerenityRest
                 .given()
                 .pathParam("id", taskId)
                 .when()
@@ -46,9 +59,10 @@ public class TaskSteps {
                 );
     }
 
-    public void userCheckIfProcjetHaveCorrectTask(long taskId, String taskName, long projectId){
+    @Step
+    public void userCheckIfProjectHaveCorrectTask(){
 
-        RestAssured
+        SerenityRest
                 .when()
                 .get("/tasks")
                 .then()

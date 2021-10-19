@@ -2,8 +2,11 @@ package org.example;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import net.serenitybdd.junit.runners.SerenityRunner;
 import org.junit.Before;
+import org.junit.runner.RunWith;
 
+@RunWith(SerenityRunner.class)
 public class Base {
 
     @Before

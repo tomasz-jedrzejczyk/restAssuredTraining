@@ -1,57 +1,65 @@
 package org.example.steps;
 
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import org.junit.Before;
+import net.serenitybdd.rest.SerenityRest;
+import net.thucydides.core.annotations.Step;
 
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.equalTo;
 
 public class ProjectSteps {
 
-    public long userCreateNewProject(String projectName){
+    private String projectName;
+    private long projectId;
 
-        return RestAssured
+    @Step
+    public long userCreateNewProject(){
+
+        projectName = "New project";
+        projectId = SerenityRest
                 .given()
-                .body(format("{\"name\": \"%s\"}", projectName))
+                    .body(format("{\"name\": \"%s\"}", projectName))
                 .when()
-                .post("/projects")
+                    .post("/projects")
                 .then()
-                .assertThat()
-                .statusCode(200)
-                .body(
+                    .assertThat()
+                        .statusCode(200)
+                        .body(
                         "name", equalTo(projectName)
-                )
-                .header("Content-Type", equalTo("application/json"))
-                .and()
-                .extract().path("id");
+                        )
+                        .header("Content-Type", equalTo("application/json"))
+                        .and()
+                        .extract().path("id");
+        return projectId;
     }
 
-    public void userChecksProjectDetails(String projectName, long projectId){
+    @Step
+    public void userChecksProjectDetails(){
 
-        RestAssured
+        SerenityRest
                 .given()
-                .pathParam("id", projectId)
+                    .pathParam("id", projectId)
                 .when()
-                .get("/projects/{id}")
+                    .get("/projects/{id}")
                 .then()
-                .assertThat()
-                .statusCode(200)
-                .body(
+                    .assertThat()
+                    .statusCode(200)
+                        .body(
                         "name", equalTo(projectName)
-                );
+                        );
     }
 
-    public void userChecksIfProjectIsListedWithAllProjects(String projectName, long projectId){
+    @Step
+    public void userChecksIfProjectIsListedWithAllProjects(){
 
-        RestAssured
+        SerenityRest
+                .given()
                 .when()
-                .get("/projects")
+                    .get("/projects")
                 .then()
-                .assertThat()
-                .body(
+                    .assertThat()
+                        .body(
                         format("find{ it.id == %d }.name", projectId),
                         equalTo(projectName)
-                );
+                        );
     }
 }
