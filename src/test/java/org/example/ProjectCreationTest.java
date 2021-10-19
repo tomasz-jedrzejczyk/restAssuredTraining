@@ -1,10 +1,17 @@
+/**
+ * Created by Tomasz Jedrzejczyk
+ * Date 18.10.2021
+ */
+
 package org.example;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
+
+import static java.lang.String.format;
+import static org.hamcrest.Matchers.equalTo;
 
 public class ProjectCreationTest {
 
@@ -22,20 +29,34 @@ public class ProjectCreationTest {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
     }
     @Test
-    public void userCanCreateProject(){
+    public void userCanCreateProject() {
 
-        long projectId = RestAssured
-                .given()
-                    .body("{\"name\": \"Moj nowy projekt\"}")
-                .when()
-                    .post("/projects")
-                .then()
-                    .assertThat()
-                        .statusCode(200)
-                        .body("name", Matchers.equalTo("Moj nowy projekt"))
-                        .header("Content-Type", Matchers.equalTo("application/json"))
-                        .and()
-                        .extract().path("id");
+        String projectName = "Totalnie nowy projekt";
+        long projectId = userCreateNewProject(projectName);
+        userChecksProjectDetails(projectName, projectId);
+        userChecksIfProjectIsListedWithAllProjects(projectName, projectId);
+
+    }
+
+    public long userCreateNewProject(String projectName){
+
+        return RestAssured
+                    .given()
+                        .body(format("{\"name\": \"%s\"}", projectName))
+                    .when()
+                        .post("/projects")
+                    .then()
+                        .assertThat()
+                            .statusCode(200)
+                            .body(
+                                    "name", equalTo(projectName)
+                            )
+                            .header("Content-Type", equalTo("application/json"))
+                            .and()
+                            .extract().path("id");
+    }
+
+    public void userChecksProjectDetails(String projectName, long projectId){
 
         RestAssured
                 .given()
@@ -45,15 +66,22 @@ public class ProjectCreationTest {
                 .then()
                     .assertThat()
                         .statusCode(200)
-                        .body("name", Matchers.equalTo("Moj nowy projekt"));
+                        .body(
+                                "name", equalTo(projectName)
+                        );
+    }
+
+    public void userChecksIfProjectIsListedWithAllProjects(String projectName, long projectId){
 
         RestAssured
                 .when()
                     .get("/projects")
                 .then()
                     .assertThat()
-                        .body(String.format("find{ it.id == %d }.name", projectId), Matchers.equalTo("Moj nowy projekt"));
-
+                        .body(
+                                format("find{ it.id == %d }.name", projectId),
+                                equalTo(projectName)
+                        );
     }
 }
 
